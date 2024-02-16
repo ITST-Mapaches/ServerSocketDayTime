@@ -3,8 +3,8 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Date;
 
-//TODO: configurar variables de entorno Java: JAVA_HOME, editar variable PATH.
 public class Main {
     //metodo main
     public static void main(String[] p) {
@@ -24,12 +24,6 @@ public class Main {
             //aceptamos la conexión y guardamos los datos del socket cliente
             Socket cliente = servidor.accept();
 
-            if (cliente != null) {
-                System.out.println("Conexion establecida!");
-                System.out.println("Puerto: " + cliente.getPort());
-                ;
-                System.out.println("ip: " + cliente.getInetAddress());
-            }
 
             //a traves de este objeto obtenedremos lo que el cliente nos envía
             BufferedReader entrada = new BufferedReader(
@@ -39,13 +33,24 @@ public class Main {
             //A taraves de este objeto le enviaremos respuesta al cliente
             PrintWriter salida = new PrintWriter(cliente.getOutputStream(), true);
 
-            String lectura;
 
-            while (true) {
+            //mensaje de bienvenida al cliente
+            salida.println("Bienvenido, conexion establecida. Escribeme \"daytime\" y te respondere la fecha.");
+
+            //leemos la respuesta del cliente
+            String lectura = entrada.readLine();
+
+            //mientras el cliente no envie nada en blanco
+            while (!lectura.isBlank()) {
+                // envia la fecha o un mensaje de error al cliente
+                salida.println((lectura.equalsIgnoreCase("daytime")) ? new Date() : "Error, debes escribir daytime");
+
+                //lee de nuevo la entrada del socket cliente
                 lectura = entrada.readLine();
-                System.out.println(lectura);
-                salida.println("Soy el servidor, me escribiste: " + lectura);
             }
+            //cerramos el socket cliente (por lo tanto la conexion) y el socket servidor
+            cliente.close();
+            servidor.close();
 
         } catch (Exception e) {
             System.out.println("Ha ocurrido un error");
